@@ -7,6 +7,14 @@ var tanksGame = {
     difficulty_level: 1
 };
 
+var sources = {
+    bg: 'pixel_grid.jpg',
+    cards: 'cards.png',
+    hand1_btn: 'hand1_button.png',
+    hand2_btn: 'hand2_button.png',
+    vs: 'vs.png'
+};
+
 tanksGame.pressedKeys = [];
 
 var KEY = {
@@ -32,6 +40,9 @@ $(function () {
 	});
 	tanksGame.width = parseInt($("#game").width());
 	tanksGame.height = parseInt($("#game").height());
+    tanksGame.img = new Image();
+    tanksGame.img.src = 'img/tiles.png';
+    
         
 });
 
@@ -39,6 +50,37 @@ function clear(ctx) {
     ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
 }
 
+function loadImages(sources, callback) {
+    var assetDir = '';
+    var images = {};
+    var loadedImages = 0;
+    var numImages = 0;
+    for(var src in sources) {
+      numImages++;
+    }
+    for(var src in sources) {
+      images[src] = new Image();
+      images[src].onload = function() {
+        if(++loadedImages >= numImages) {
+          callback(images);
+        }
+      };
+      images[src].src = assetDir + sources[src];
+    }
+}
+
+
+loadImages(sources, initStage);
+      
+      
+function initStage(images) {
+    var stage = new Kinetic.Stage({
+        container: 'container',
+        width: 700,
+        height: 500
+    });
+}
+          
 function gameloop() {
     // get the reference of the canvas element and the drawing context.
     var canvas = document.getElementById('game');
@@ -131,32 +173,41 @@ function drawBullet(ctx, x, y) {
 }
 
 function drawTank(ctx, x, y, rotation) {
-    var tank_width = 20;
-    var tank_height = 20;
+    var tank_width = 40;
+    var tank_height = 40;
+    var converted = convertTileCoords(15,3);
     
-    ctx.beginPath();
-    ctx.moveTo(x+0, y+0);
-    ctx.lineTo(x+0, y+tank_height);
-    ctx.lineTo(x+tank_width/4,y+tank_height);
-    ctx.lineTo(x+tank_width/4,y+3*tank_height/4);
-    ctx.lineTo(x+3*tank_width/4,y+3*tank_height/4);
-    ctx.lineTo(x+3*tank_width/4,y+tank_height);
-    ctx.lineTo(x+tank_width,y+tank_height);
-    ctx.lineTo(x+tank_width,y+0);
-    ctx.lineTo(x+3*tank_width/4,y+0);
-    ctx.lineTo(x+3*tank_width/4,y+tank_height/4);
-    ctx.lineTo(2+x+tank_width/2,y+tank_height/4);
-    ctx.lineTo(2+x+tank_width/2,y+0);
-    ctx.lineTo(x-2+tank_width/2,y+0);
-    ctx.lineTo(x-2+tank_width/2,y+tank_height/4);
-    ctx.lineTo(x+tank_width/4,y+tank_height/4);
-    ctx.lineTo(x+tank_width/4,y+0);
-    ctx.lineTo(x+0,y+0);
-    ctx.lineWidth = 1;
-    ctx.strokeStyle = '#cfc';
-    ctx.stroke();
+//    ctx.beginPath();
+//    ctx.moveTo(x+0, y+0);
+//    ctx.lineTo(x+0, y+tank_height);
+//    ctx.lineTo(x+tank_width/4,y+tank_height);
+//    ctx.lineTo(x+tank_width/4,y+3*tank_height/4);
+//    ctx.lineTo(x+3*tank_width/4,y+3*tank_height/4);
+//    ctx.lineTo(x+3*tank_width/4,y+tank_height);
+//    ctx.lineTo(x+tank_width,y+tank_height);
+//    ctx.lineTo(x+tank_width,y+0);
+//    ctx.lineTo(x+3*tank_width/4,y+0);
+//    ctx.lineTo(x+3*tank_width/4,y+tank_height/4);
+//    ctx.lineTo(2+x+tank_width/2,y+tank_height/4);
+//    ctx.lineTo(2+x+tank_width/2,y+0);
+//    ctx.lineTo(x-2+tank_width/2,y+0);
+//    ctx.lineTo(x-2+tank_width/2,y+tank_height/4);
+//    ctx.lineTo(x+tank_width/4,y+tank_height/4);
+//    ctx.lineTo(x+tank_width/4,y+0);
+//    ctx.lineTo(x+0,y+0);
+//    ctx.lineWidth = 1;
+//    ctx.strokeStyle = '#cfc';
+//    ctx.stroke();
+    
+    ctx.drawImage(tanksGame.img,converted.x,converted.y,32,32,x,y,32,32);
 }
 
+function convertTileCoords(x,y) {
+    var res = [];
+    res.x = (x-1) * 32;
+    res.y = (y-1) * 32;
+    return res;
+}
 function drawShip(ctx, x, y, rotation) {
     
 
