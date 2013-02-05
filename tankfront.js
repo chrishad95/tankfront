@@ -13,6 +13,13 @@ app.get('/js/client.js', function (req, res) {
     res.sendfile(__dirname + '/js/client.js');
 });
 
+app.get('/img/tiles.png', function (req, res) {
+res.sendfile(__dirname + '/img/tiles.png');
+});
+app.get('/js/kinetic-v4.3.1.min.js', function (req, res) {
+    res.sendfile(__dirname + '/js/kinetic-v4.3.1.min.js');
+});
+
 io.sockets.on('connection', function (socket) {
     socket.emit('news', { hello: 'world' });
     socket.on('my other event', function (data) {
