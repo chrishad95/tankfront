@@ -8,11 +8,7 @@ var tanksGame = {
 };
 
 var sources = {
-    bg: 'pixel_grid.jpg',
-    cards: 'cards.png',
-    hand1_btn: 'hand1_button.png',
-    hand2_btn: 'hand2_button.png',
-    vs: 'vs.png'
+    tiles: 'img/tiles.png'
 };
 
 tanksGame.pressedKeys = [];
