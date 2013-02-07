@@ -16,8 +16,11 @@ app.get('/js/client.js', function (req, res) {
 app.get('/img/tiles.png', function (req, res) {
 res.sendfile(__dirname + '/img/tiles.png');
 });
-app.get('/js/kinetic-v4.3.1.min.js', function (req, res) {
-    res.sendfile(__dirname + '/js/kinetic-v4.3.1.min.js');
+app.get('/img/pixel_grid.jpg', function (req, res) {
+res.sendfile(__dirname + '/img/pixel_grid.jpg');
+});
+app.get('/js/kinetic.js', function (req, res) {
+    res.sendfile(__dirname + '/js/kinetic.js');
 });
 
 io.sockets.on('connection', function (socket) {
