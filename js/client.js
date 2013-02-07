@@ -128,16 +128,30 @@ function moveShips() {
     if (tanksGame.pressedKeys[KEY.UP]) {
         // need to give it some gas here.
         var velocityX = 1 * Math.sin(toRadians(  tanksGame.ships[0].rotation));
-        var velocityY = -1 *  Math.cos(toRadians(tanksGame.ships[0].rotation ));
+        velocityX = velocityX * 1000;
+        velocityX = Math.floor(velocityX);
+        velocityX = velocityX / 1000;
+        
+        var velocityY = 1 *  Math.cos(toRadians(tanksGame.ships[0].rotation ));
+        velocityY = velocityY * 1000;
+        velocityY = Math.floor(velocityY);
+        velocityY = velocityY / 1000;
+        velocityY = velocityY * -1;
+        
+//        
+//        console.log("cosine of " + tanksGame.ships[0].rotation + " = " + Math.cos(toRadians(tanksGame.ships[0].rotation )));
+//        console.log("sine of " + tanksGame.ships[0].rotation + " = " + Math.sin(toRadians(tanksGame.ships[0].rotation )));
         
         // constant speed...
+        
         tanksGame.ships[0].speedX = velocityX;
         tanksGame.ships[0].speedY = velocityY;
         tanksGame.ships[0].x += velocityX;
         tanksGame.ships[0].y += velocityY;
-        tanksGame.ships[0].image.setX( tanksGame.ships[0].image.getX() + velocityX);
-        tanksGame.ships[0].image.setY( tanksGame.ships[0].image.getY() + velocityX);
+        tanksGame.ships[0].image.setX( tanksGame.ships[0].x);
+        tanksGame.ships[0].image.setY( tanksGame.ships[0].y);
         tanksGame.tanksLayer.draw();
+        
         console.log("move " + tanksGame.ships[0].rotation );
         console.log("speedx = " + velocityX);
         console.log("speedy = " + velocityY);
