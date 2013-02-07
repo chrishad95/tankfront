@@ -111,6 +111,45 @@ function gameloop() {
 
 }
 
+function moveShips() {
+
+    if (tanksGame.pressedKeys[KEY.RIGHT]) {
+        tanksGame.ships[0].rotation = (tanksGame.ships[0].rotation + 5) % 360;
+        tanksGame.ships[0].image.rotate(toRadians(  5));
+        tanksGame.tanksLayer.draw();
+        console.log("move right " + tanksGame.ships[0].rotation);
+    }
+    if (tanksGame.pressedKeys[KEY.LEFT]) {
+        tanksGame.ships[0].rotation = (360 + tanksGame.ships[0].rotation - 5) % 360;
+        tanksGame.ships[0].image.rotate(toRadians(  -5));
+        tanksGame.tanksLayer.draw();
+        console.log("move left " + tanksGame.ships[0].rotation);
+    }
+    if (tanksGame.pressedKeys[KEY.UP]) {
+        // need to give it some gas here.
+        var velocityX = 1 * Math.sin(toRadians(  tanksGame.ships[0].rotation));
+        var velocityY = -1 *  Math.cos(toRadians(tanksGame.ships[0].rotation ));
+        
+        // constant speed...
+        tanksGame.ships[0].speedX = velocityX;
+        tanksGame.ships[0].speedY = velocityY;
+        tanksGame.ships[0].x += velocityX;
+        tanksGame.ships[0].y += velocityY;
+        tanksGame.ships[0].image.setX( tanksGame.ships[0].image.getX() + velocityX);
+        tanksGame.ships[0].image.setY( tanksGame.ships[0].image.getY() + velocityX);
+        tanksGame.tanksLayer.draw();
+        console.log("move " + tanksGame.ships[0].rotation );
+        console.log("speedx = " + velocityX);
+        console.log("speedy = " + velocityY);
+        
+        
+    } else {
+        // if they take their foot off the gas, the tank stops
+        tanksGame.ships[0].speedX = 0;
+        tanksGame.ships[0].speedY = 0;
+    }
+}
+
 function Asteroid(x, y, speedX, speedY, size) {
     this.x = x;
     this.y = y;
@@ -202,41 +241,6 @@ function moveBullets(ctx) {
 
 }
 
-function moveShips() {
-
-    if (tanksGame.pressedKeys[KEY.RIGHT]) {
-        tanksGame.ships[0].rotation = (tanksGame.ships[0].rotation + 5) % 360;
-        tanksGame.ships[0].image.rotate(0.5);
-        tanksGame.tanksLayer.draw();
-        console.log("move right damnit");
-    }
-    if (tanksGame.pressedKeys[KEY.LEFT]) {
-        tanksGame.ships[0].rotation = (360 + tanksGame.ships[0].rotation - 5) % 360;
-        tanksGame.ships[0].image.rotate(-0.5);
-        tanksGame.tanksLayer.draw();
-        console.log("move left damnit");
-    }
-    if (tanksGame.pressedKeys[KEY.UP]) {
-        // need to give it some gas here.
-        var velocityY = 1 * Math.sin(toRadians(  tanksGame.ships[0].rotation));
-        var velocityX = 1 *  Math.cos(toRadians(tanksGame.ships[0].rotation ));
-        
-        // constant speed...
-        tanksGame.ships[0].speedX = velocityX;
-        tanksGame.ships[0].speedY = velocityY;
-        tanksGame.ships[0].x += velocityX;
-        tanksGame.ships[0].y += velocityY;
-        tanksGame.ships[0].image.x += velocityX;
-        tanksGame.ships[0].image.y += velocityY;
-        tanksGame.tanksLayer.draw();
-        console.log("move damnit");
-        
-    } else {
-        // if they take their foot off the gas, the tank stops
-        tanksGame.ships[0].speedX = 0;
-        tanksGame.ships[0].speedY = 0;
-    }
-}
 
 function drawLine(ctx, x1, y1, x2, y2, thickness) {
     ctx.beginPath();
