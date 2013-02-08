@@ -17,6 +17,8 @@ tanksGame.pressedKeys = [];
 var KEY = {
     UP: 38,
 	DOWN: 40,
+    A: 65,
+    D:68,
 	W:87,
 	S:83,
 	ENTER: 13,
@@ -30,17 +32,17 @@ $(function () {
     loadImages(sources, initStage);
 
     $(document).keydown(function(e) {
-	    tanksGame.pressedKeys[e.which] = true;
+        tanksGame.pressedKeys[e.which] = true;
 	});
 
 	$(document).keyup(function (e) {
-	    tanksGame.pressedKeys[e.which] = false;
+        tanksGame.pressedKeys[e.which] = false;
 	});
 });
 
       
 function initStage(images) {
-    var stage = tanksGame.stage = new Kinetic.Stage({ container: "container", width: 578, height: 200 });
+    var stage = tanksGame.stage = new Kinetic.Stage({ container: "container", width: 800, height: 600 });
     
     var bgLayer = new Kinetic.Layer();
   	bgLayer.add( new Kinetic.Image({
@@ -113,34 +115,23 @@ function gameloop() {
 
 function moveShips() {
 
-    if (tanksGame.pressedKeys[KEY.RIGHT]) {
+    if (tanksGame.pressedKeys[KEY.RIGHT] || tanksGame.pressedKeys[KEY.D] ) {
         tanksGame.ships[0].rotation = (tanksGame.ships[0].rotation + 5) % 360;
         tanksGame.ships[0].image.rotate(toRadians(  5));
         tanksGame.tanksLayer.draw();
-        console.log("move right " + tanksGame.ships[0].rotation);
     }
-    if (tanksGame.pressedKeys[KEY.LEFT]) {
+    if (tanksGame.pressedKeys[KEY.LEFT]  || tanksGame.pressedKeys[KEY.A] ) {
         tanksGame.ships[0].rotation = (360 + tanksGame.ships[0].rotation - 5) % 360;
         tanksGame.ships[0].image.rotate(toRadians(  -5));
         tanksGame.tanksLayer.draw();
-        console.log("move left " + tanksGame.ships[0].rotation);
     }
-    if (tanksGame.pressedKeys[KEY.UP]) {
+    if (tanksGame.pressedKeys[KEY.UP] || tanksGame.pressedKeys[KEY.W] ) {
         // need to give it some gas here.
         var velocityX = 1 * Math.sin(toRadians(  tanksGame.ships[0].rotation));
-        velocityX = velocityX * 1000;
-        velocityX = Math.floor(velocityX);
-        velocityX = velocityX / 1000;
+        velocityX = Math.floor(velocityX * 1000) / 1000;
         
         var velocityY = 1 *  Math.cos(toRadians(tanksGame.ships[0].rotation ));
-        velocityY = velocityY * 1000;
-        velocityY = Math.floor(velocityY);
-        velocityY = velocityY / 1000;
-        velocityY = velocityY * -1;
-        
-//        
-//        console.log("cosine of " + tanksGame.ships[0].rotation + " = " + Math.cos(toRadians(tanksGame.ships[0].rotation )));
-//        console.log("sine of " + tanksGame.ships[0].rotation + " = " + Math.sin(toRadians(tanksGame.ships[0].rotation )));
+        velocityY = Math.floor(velocityY * -1000) / 1000;
         
         // constant speed...
         
@@ -151,17 +142,27 @@ function moveShips() {
         tanksGame.ships[0].image.setX( tanksGame.ships[0].x);
         tanksGame.ships[0].image.setY( tanksGame.ships[0].y);
         tanksGame.tanksLayer.draw();
+                
+    } 
+    if (tanksGame.pressedKeys[KEY.DOWN] || tanksGame.pressedKeys[KEY.S] ) {
+        // need to give it some gas here.
+        var velocityX = 1 * Math.sin(toRadians(  tanksGame.ships[0].rotation));
+        velocityX = Math.floor(velocityX * -1000) / 1000;
         
-        console.log("move " + tanksGame.ships[0].rotation );
-        console.log("speedx = " + velocityX);
-        console.log("speedy = " + velocityY);
+        var velocityY = 1 *  Math.cos(toRadians(tanksGame.ships[0].rotation ));
+        velocityY = Math.floor(velocityY * 1000) / 1000;
         
+        // constant speed...
         
-    } else {
-        // if they take their foot off the gas, the tank stops
-        tanksGame.ships[0].speedX = 0;
-        tanksGame.ships[0].speedY = 0;
-    }
+        tanksGame.ships[0].speedX = velocityX;
+        tanksGame.ships[0].speedY = velocityY;
+        tanksGame.ships[0].x += velocityX;
+        tanksGame.ships[0].y += velocityY;
+        tanksGame.ships[0].image.setX( tanksGame.ships[0].x);
+        tanksGame.ships[0].image.setY( tanksGame.ships[0].y);
+        tanksGame.tanksLayer.draw();
+                
+    } 
 }
 
 function Asteroid(x, y, speedX, speedY, size) {
