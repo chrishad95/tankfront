@@ -153,6 +153,7 @@ function moveShips() {
         velocityY = Math.floor(velocityY * 1000) / 1000;
         
         // constant speed...
+        // maps article  http://stackoverflow.com/questions/11406161/managing-text-maps-in-a-2d-array-on-to-be-painted-on-html5-canvas
         
         tanksGame.ships[0].speedX = velocityX;
         tanksGame.ships[0].speedY = velocityY;
