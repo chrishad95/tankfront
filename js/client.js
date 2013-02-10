@@ -1,6 +1,6 @@
 var tanksGame = {
-    height: 0,
-    width: 0,
+    height: 600,
+    width: 800,
     ships: [],
     ship_zize: 10,
     asteroids: [],
@@ -42,7 +42,32 @@ $(function () {
 
       
 function initStage(images) {
-    var stage = tanksGame.stage = new Kinetic.Stage({ container: "container", width: 800, height: 600 });
+    
+    tanksGame.socket = io.connect(null);
+    
+    tanksGame.socket.on('current_position', function (data) {
+        console.log(data);
+        if (tanksGame.myTank) {
+
+            tanksGame.ships[0].speedX = 0;
+            tanksGame.ships[0].speedY = 0;
+            tanksGame.ships[0].x = data.x;
+            tanksGame.ships[0].y = data.y;
+            tanksGame.ships[0].rotation = data.rotation;
+            tanksGame.ships[0].image.rotate(toRadians(  data.rotation));
+            
+            tanksGame.ships[0].image.setX( tanksGame.ships[0].x);
+            tanksGame.ships[0].image.setY( tanksGame.ships[0].y);
+            tanksGame.tanksLayer.draw();
+        } else {
+            
+            tanksGame.myTank = new Tank(data.x  , data.y , 0, 0, data.rotation);
+            tanksGame.ships.push(tanksGame.myTank)
+        }
+        
+	});
+    
+    var stage = tanksGame.stage = new Kinetic.Stage({ container: "container", width: tanksGame.width, height: tanksGame.height });
     
     var bgLayer = new Kinetic.Layer();
   	bgLayer.add( new Kinetic.Image({
@@ -85,7 +110,7 @@ function gameloop() {
 
 
     if (tanksGame.ships.length < 1) {
-        tanksGame.ships.push(new Tank(20, 20, 0, 0, 0));
+        console.log();
     }
 
 //
@@ -153,7 +178,11 @@ function moveShips() {
         velocityY = Math.floor(velocityY * 1000) / 1000;
         
         // constant speed...
-        // maps article  http://stackoverflow.com/questions/11406161/managing-text-maps-in-a-2d-array-on-to-be-painted-on-html5-canvas
+        // maps article  
+        // http://stackoverflow.com/questions/11406161/managing-text-maps-in-a-2d-array-on-to-be-painted-on-html5-canvas
+        // gameloop latency
+        // https://developer.valvesoftware.com/wiki/Latency_Compensating_Methods_in_Client/Server_In-game_Protocol_Design_and_Optimization
+        
         
         tanksGame.ships[0].speedX = velocityX;
         tanksGame.ships[0].speedY = velocityY;
@@ -207,6 +236,8 @@ function Tank(x, y, speedX, speedY, rotation) {
         offset: [16,16],
         image: tanksGame.images.tiles
     });
+    this.image.rotate( toRadians(this.rotation));
+    
     
     tanksGame.tanksLayer.add(this.image);
     tanksGame.tanksLayer.draw();    
