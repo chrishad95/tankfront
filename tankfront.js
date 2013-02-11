@@ -10,9 +10,7 @@ gameData.players = [];
 gameData.height = 600,
 gameData.width = 800,
 
-
-
-server.listen(process.env.PORT);
+server.listen(9090);
 
 app.get('/', function (req, res) {
     res.sendfile(__dirname + '/index.html');
@@ -30,20 +28,67 @@ res.sendfile(__dirname + '/img/tiles.png');
 app.get('/img/pixel_grid.jpg', function (req, res) {
 res.sendfile(__dirname + '/img/pixel_grid.jpg');
 });
-app.get('/js/kinetic.js', function (req, res) {
-    res.sendfile(__dirname + '/js/kinetic.js');
+app.get('/js/kinetic-v4.3.1.min.js', function (req, res) {
+    res.sendfile(__dirname + '/js/kinetic-v4.3.1.min.js');
 });
 
 io.sockets.on('connection', function (socket) {
+
     var id = gameData.playerCount++;
-    gameData.players[id] = new Player(socket,id);
+	socket.set('id',id);
+
+	var p = new Player(socket,id);
+
+    gameData.players[id] = p;
     console.log("Player " + id + " has joined.");
     
     socket.emit('current_position', {x: gameData.players[id].x, y: gameData.players[id].y, rotation: gameData.players[id].rotation});
-    socket.on('my other event', function (data) {
-        console.log(data);
+
+    socket.on('move_right', function (data) {
+		socket.get('id', function(err,id){
+        	gameData.players[id].rotation = (gameData.players[id].rotation + 5) % 360;
+		});
+    });
+    socket.on('move_left', function (data) {
+		socket.get('id', function(err,id){
+        	gameData.players[id].rotation = (gameData.players[id].rotation - 5) % 360;
+		});
+    });
+    socket.on('move_up', function (data) {
+		socket.get('id', function(err,id){
+        	// need to give it some gas here.
+        	var velocityX = 1 * Math.sin(toRadians(  gameData.players[id].rotation));
+        	velocityX = Math.floor(velocityX * 1000) / 1000;
+        	
+        	var velocityY = 1 *  Math.cos(toRadians(gamesData.players[id].rotation ));
+        	velocityY = Math.floor(velocityY * -1000) / 1000;
+
+        	gamesData.players[id].x += velocityX;
+        	gamesData.players[id].y += velocityY;
+		});
+    });
+    socket.on('move_down', function (data) {
+		socket.get('id', function(err,id){
+        	// need to give it some gas here.
+        	var velocityX = 1 * Math.sin(toRadians(  gameData.players[id].rotation));
+        	velocityX = Math.floor(velocityX * -1000) / 1000;
+        	
+        	var velocityY = 1 *  Math.cos(toRadians(gamesData.players[id].rotation ));
+        	velocityY = Math.floor(velocityY * 1000) / 1000;
+
+        	gamesData.players[id].x += velocityX;
+        	gamesData.players[id].y += velocityY;
+		});
     });
 });
+
+
+gameData.timer = setInterval(gameloop, 30);
+
+function toRadians(d) {
+    //gives an angle in radians
+    return d * Math.PI / 180;
+}
 
 function Player(socket, name){
     this.socket = socket;
@@ -51,6 +96,18 @@ function Player(socket, name){
     this.x = Math.floor(Math.random() * gameData.width);
     this.y = Math.floor(Math.random() * gameData.height);
     this.rotation = Math.floor(Math.random() * 360);
+}
+function gameloop ()
+{
+	
+	var tanks = [];
+	for (var id in gameData.players) {
+		tanks.push( {x: gameData.players[id].x, y: gameData.players[id].y, rotation: gameData.players[id].rotation} );
+	}
+	for (var id in gameData.players) {
+		gameData.players[id].socket.emit('update_game',  {tanks: tanks});
+	}
+
 }
 
 //function Tank(x, y, speedX, speedY, rotation) {
