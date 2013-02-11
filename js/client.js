@@ -55,6 +55,22 @@ function initStage(images) {
 			console.log("My id: " + tanksGame.id);
 		}
 
+		for (t in tanksGame.tanks) {
+			if (! tanksGame.tanks[t].deleted) {
+				var foundtank = false;
+				for (servertank in data.tanks) {
+					if (servertank == t) {
+						foundtank = true;
+					}
+				}
+				if (! foundtank) {
+					console.log("deleting tank: " + t);
+					tanksGame.tanks[t].deleted = true;
+					tanksGame.tanks[t].image.destroy();
+				}
+			}
+		}
+
 		for (t in data.tanks) {
 			if (tanksGame.debug) {
 				console.log("Adding Tank: " + t);
@@ -75,6 +91,7 @@ function initStage(images) {
 	            tanksGame.tanksLayer.draw();
 			}  else {
 				tanksGame.tanks[t] = new Tank(data.tanks[t].x  , data.tanks[t].y , 0, 0, data.tanks[t].rotation, (t != tanksGame.id));
+				tanksGame.tanks[t].deleted = false;
 	            tanksGame.tanksLayer.draw();
 			}
 		}
@@ -260,6 +277,7 @@ function Tank(x, y, speedX, speedY, rotation, enemy) {
     this.rotation = rotation;
     this.x = x;
     this.y = y;
+    this.deleted = false;
     this.speedX = speedX;
     this.speedY = speedY;
     this.bullets = []; 
@@ -267,7 +285,7 @@ function Tank(x, y, speedX, speedY, rotation, enemy) {
     	this.image = new Kinetic.Image({
     	    x: x,
     	    y: y,
-    	    crop: {width: 32, height: 32, x: convertTileCoords(18,5).x, y: convertTileCoords(15,3).y},
+    	    crop: {width: 32, height: 32, x: convertTileCoords(18,5).x, y: convertTileCoords(18,5).y},
     	    width: 32,
     	    height: 32,
     	    offset: [16,16],
