@@ -35,12 +35,14 @@ app.get('/js/kinetic-v4.3.1.min.js', function (req, res) {
 io.sockets.on('connection', function (socket) {
 
     var id = gameData.playerCount++;
+	id = id + randomstring(10);
 	socket.set('id',id);
 
 	var p = new Player(socket,id);
 
     gameData.players[id] = p;
     console.log("Player " + id + " has joined.");
+    socket.emit('your_id', {id: id});
     
     socket.emit('current_position', {x: gameData.players[id].x, y: gameData.players[id].y, rotation: gameData.players[id].rotation});
 
@@ -60,11 +62,11 @@ io.sockets.on('connection', function (socket) {
         	var velocityX = 1 * Math.sin(toRadians(  gameData.players[id].rotation));
         	velocityX = Math.floor(velocityX * 1000) / 1000;
         	
-        	var velocityY = 1 *  Math.cos(toRadians(gamesData.players[id].rotation ));
+        	var velocityY = 1 *  Math.cos(toRadians(gameData.players[id].rotation ));
         	velocityY = Math.floor(velocityY * -1000) / 1000;
 
-        	gamesData.players[id].x += velocityX;
-        	gamesData.players[id].y += velocityY;
+        	gameData.players[id].x += velocityX;
+        	gameData.players[id].y += velocityY;
 		});
     });
     socket.on('move_down', function (data) {
@@ -73,13 +75,20 @@ io.sockets.on('connection', function (socket) {
         	var velocityX = 1 * Math.sin(toRadians(  gameData.players[id].rotation));
         	velocityX = Math.floor(velocityX * -1000) / 1000;
         	
-        	var velocityY = 1 *  Math.cos(toRadians(gamesData.players[id].rotation ));
+        	var velocityY = 1 *  Math.cos(toRadians(gameData.players[id].rotation ));
         	velocityY = Math.floor(velocityY * 1000) / 1000;
 
-        	gamesData.players[id].x += velocityX;
-        	gamesData.players[id].y += velocityY;
+        	gameData.players[id].x += velocityX;
+        	gameData.players[id].y += velocityY;
 		});
     });
+	socket.on('disconnect', function() {
+		socket.get('id', function(err,id){
+			console.log(id + " disconnected.");
+			delete gameData.players[id];
+		});
+
+	});
 });
 
 
@@ -100,9 +109,9 @@ function Player(socket, name){
 function gameloop ()
 {
 	
-	var tanks = [];
+	var tanks = {};
 	for (var id in gameData.players) {
-		tanks.push( {x: gameData.players[id].x, y: gameData.players[id].y, rotation: gameData.players[id].rotation} );
+		tanks[id] =  {id: id, x: gameData.players[id].x, y: gameData.players[id].y, rotation: gameData.players[id].rotation};
 	}
 	for (var id in gameData.players) {
 		gameData.players[id].socket.emit('update_game',  {tanks: tanks});
@@ -110,6 +119,15 @@ function gameloop ()
 
 }
 
+function randomstring (num){
+    var text = "";
+    var possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+
+    for( var i=0; i < num; i++ )
+        text += possible.charAt(Math.floor(Math.random() * possible.length));
+
+    return text;
+}
 //function Tank(x, y, speedX, speedY, rotation) {
 //    this.rotation = rotation;
 //    this.x = x;

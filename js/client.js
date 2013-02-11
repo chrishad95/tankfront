@@ -1,9 +1,11 @@
 var tanksGame = {
     height: 600,
     width: 800,
-    ships: [],
+    tanks: [],
+    id: '',
     ship_zize: 10,
     asteroids: [],
+	debug: true,
     difficulty_level: 1
 };
 
@@ -44,12 +46,42 @@ $(function () {
 function initStage(images) {
     
     tanksGame.socket = io.connect(null);
+    tanksGame.socket.on('your_id', function (data) {
+		tanksGame.id = data.id;
+	});
     
     tanksGame.socket.on('update_game', function (data) {
-		console.log(data);
-		tanksGame.tanksLayer.clear();
+		if (tanksGame.debug) {
+			console.log("My id: " + tanksGame.id);
+		}
+
 		for (t in data.tanks) {
-			new Tank(data.tanks[t].x  , data.tanks[t].y , 0, 0, data.tanks[t].rotation);
+			if (tanksGame.debug) {
+				console.log("Adding Tank: " + t);
+			}
+			if (tanksGame.tanks[t]) {
+				tanksGame.tanks[t].image.setX( data.tanks[t].x);
+				tanksGame.tanks[t].image.setY( data.tanks[t].y);
+				if (data.tanks[t].rotation > tanksGame.tanks[t].rotation ){
+					// server rotation is greater
+					tanksGame.tanks[t].image.rotate(toRadians(data.tanks[t].rotation - tanksGame.tanks[t].rotation));
+					tanksGame.tanks[t].rotation = data.tanks[t].rotation;
+				} else {
+					// server rotation is lesser
+					tanksGame.tanks[t].image.rotate(toRadians(data.tanks[t].rotation - tanksGame.tanks[t].rotation));
+					tanksGame.tanks[t].rotation = data.tanks[t].rotation;
+				}
+
+	            tanksGame.tanksLayer.draw();
+			}  else {
+				tanksGame.tanks[t] = new Tank(data.tanks[t].x  , data.tanks[t].y , 0, 0, data.tanks[t].rotation, (t != tanksGame.id));
+	            tanksGame.tanksLayer.draw();
+			}
+		}
+		if (tanksGame.debug) {
+			tanksGame.debug = false;
+			console.log(data);
+			console.log(tanksGame);
 		}
 
 //        if (tanksGame.myTank) {
@@ -113,9 +145,6 @@ function loadImages(sources, callback) {
 function gameloop() {
 
 
-    if (tanksGame.ships.length < 1) {
-        console.log();
-    }
 
 //
 //    // bullets
@@ -158,6 +187,7 @@ function moveShips() {
     }
     if (tanksGame.pressedKeys[KEY.UP] || tanksGame.pressedKeys[KEY.W] ) {
 		tanksGame.socket.emit('move_up', null);
+		tanksGame.debug = true;
         //// need to give it some gas here.
         //var velocityX = 1 * Math.sin(toRadians(  tanksGame.ships[0].rotation));
         //velocityX = Math.floor(velocityX * 1000) / 1000;
@@ -226,24 +256,34 @@ function Asteroid(x, y, speedX, speedY, size) {
         theta += Math.floor(360 / n_points);
     }
 }
-function Tank(x, y, speedX, speedY, rotation) {
+function Tank(x, y, speedX, speedY, rotation, enemy) {
     this.rotation = rotation;
     this.x = x;
     this.y = y;
     this.speedX = speedX;
     this.speedY = speedY;
-    this.bullets = [];
-    console.log("x=" + x + " y=" + y);
-    
-    this.image = new Kinetic.Image({
-        x: x,
-        y: y,
-        crop: {width: 32, height: 32, x: convertTileCoords(15,3).x, y: convertTileCoords(15,3).y},
-        width: 32,
-        height: 32,
-        offset: [16,16],
-        image: tanksGame.images.tiles
-    });
+    this.bullets = []; 
+	if (enemy) {
+    	this.image = new Kinetic.Image({
+    	    x: x,
+    	    y: y,
+    	    crop: {width: 32, height: 32, x: convertTileCoords(18,5).x, y: convertTileCoords(15,3).y},
+    	    width: 32,
+    	    height: 32,
+    	    offset: [16,16],
+    	    image: tanksGame.images.tiles
+    	});
+	} else {
+    	this.image = new Kinetic.Image({
+    	    x: x,
+    	    y: y,
+    	    crop: {width: 32, height: 32, x: convertTileCoords(15,3).x, y: convertTileCoords(15,3).y},
+    	    width: 32,
+    	    height: 32,
+    	    offset: [16,16],
+    	    image: tanksGame.images.tiles
+    	});
+	}
     this.image.rotate( toRadians(this.rotation));
     
     
