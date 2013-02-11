@@ -45,25 +45,29 @@ function initStage(images) {
     
     tanksGame.socket = io.connect(null);
     
-    tanksGame.socket.on('current_position', function (data) {
-        console.log(data);
-        if (tanksGame.myTank) {
+    tanksGame.socket.on('update_game', function (data) {
+		console.log(data);
+		tanksGame.tanksLayer.clear();
+		for (t in data.tanks) {
+			new Tank(data.tanks[t].x  , data.tanks[t].y , 0, 0, data.tanks[t].rotation);
+		}
 
-            tanksGame.ships[0].speedX = 0;
-            tanksGame.ships[0].speedY = 0;
-            tanksGame.ships[0].x = data.x;
-            tanksGame.ships[0].y = data.y;
-            tanksGame.ships[0].rotation = data.rotation;
-            tanksGame.ships[0].image.rotate(toRadians(  data.rotation));
-            
-            tanksGame.ships[0].image.setX( tanksGame.ships[0].x);
-            tanksGame.ships[0].image.setY( tanksGame.ships[0].y);
-            tanksGame.tanksLayer.draw();
-        } else {
-            
-            tanksGame.myTank = new Tank(data.x  , data.y , 0, 0, data.rotation);
-            tanksGame.ships.push(tanksGame.myTank)
-        }
+//        if (tanksGame.myTank) {
+//            tanksGame.ships[0].speedX = 0;
+//            tanksGame.ships[0].speedY = 0;
+//            tanksGame.ships[0].x = data.x;
+//            tanksGame.ships[0].y = data.y;
+//            tanksGame.ships[0].rotation = data.rotation;
+//            tanksGame.ships[0].image.rotate(toRadians(  data.rotation));
+//            
+//            tanksGame.ships[0].image.setX( tanksGame.ships[0].x);
+//            tanksGame.ships[0].image.setY( tanksGame.ships[0].y);
+//            tanksGame.tanksLayer.draw();
+//        } else {
+//            
+//            tanksGame.myTank = new Tank(data.x  , data.y , 0, 0, data.rotation);
+//            tanksGame.ships.push(tanksGame.myTank)
+//        }
         
 	});
     
@@ -141,56 +145,60 @@ function gameloop() {
 function moveShips() {
 
     if (tanksGame.pressedKeys[KEY.RIGHT] || tanksGame.pressedKeys[KEY.D] ) {
-        tanksGame.ships[0].rotation = (tanksGame.ships[0].rotation + 5) % 360;
-        tanksGame.ships[0].image.rotate(toRadians(  5));
-        tanksGame.tanksLayer.draw();
+        //tanksGame.ships[0].rotation = (tanksGame.ships[0].rotation + 5) % 360;
+        //tanksGame.ships[0].image.rotate(toRadians(  5));
+        //tanksGame.tanksLayer.draw();
+		tanksGame.socket.emit('move_right', null);
     }
     if (tanksGame.pressedKeys[KEY.LEFT]  || tanksGame.pressedKeys[KEY.A] ) {
-        tanksGame.ships[0].rotation = (360 + tanksGame.ships[0].rotation - 5) % 360;
-        tanksGame.ships[0].image.rotate(toRadians(  -5));
-        tanksGame.tanksLayer.draw();
+		tanksGame.socket.emit('move_left', null);
+        //tanksGame.ships[0].rotation = (360 + tanksGame.ships[0].rotation - 5) % 360;
+        //tanksGame.ships[0].image.rotate(toRadians(  -5));
+        //tanksGame.tanksLayer.draw();
     }
     if (tanksGame.pressedKeys[KEY.UP] || tanksGame.pressedKeys[KEY.W] ) {
-        // need to give it some gas here.
-        var velocityX = 1 * Math.sin(toRadians(  tanksGame.ships[0].rotation));
-        velocityX = Math.floor(velocityX * 1000) / 1000;
-        
-        var velocityY = 1 *  Math.cos(toRadians(tanksGame.ships[0].rotation ));
-        velocityY = Math.floor(velocityY * -1000) / 1000;
-        
-        // constant speed...
-        
-        tanksGame.ships[0].speedX = velocityX;
-        tanksGame.ships[0].speedY = velocityY;
-        tanksGame.ships[0].x += velocityX;
-        tanksGame.ships[0].y += velocityY;
-        tanksGame.ships[0].image.setX( tanksGame.ships[0].x);
-        tanksGame.ships[0].image.setY( tanksGame.ships[0].y);
-        tanksGame.tanksLayer.draw();
+		tanksGame.socket.emit('move_up', null);
+        //// need to give it some gas here.
+        //var velocityX = 1 * Math.sin(toRadians(  tanksGame.ships[0].rotation));
+        //velocityX = Math.floor(velocityX * 1000) / 1000;
+        //
+        //var velocityY = 1 *  Math.cos(toRadians(tanksGame.ships[0].rotation ));
+        //velocityY = Math.floor(velocityY * -1000) / 1000;
+        //
+        //// constant speed...
+        //
+        //tanksGame.ships[0].speedX = velocityX;
+        //tanksGame.ships[0].speedY = velocityY;
+        //tanksGame.ships[0].x += velocityX;
+        //tanksGame.ships[0].y += velocityY;
+        //tanksGame.ships[0].image.setX( tanksGame.ships[0].x);
+        //tanksGame.ships[0].image.setY( tanksGame.ships[0].y);
+        //tanksGame.tanksLayer.draw();
                 
     } 
     if (tanksGame.pressedKeys[KEY.DOWN] || tanksGame.pressedKeys[KEY.S] ) {
+		tanksGame.socket.emit('move_down', null);
         // need to give it some gas here.
-        var velocityX = 1 * Math.sin(toRadians(  tanksGame.ships[0].rotation));
-        velocityX = Math.floor(velocityX * -1000) / 1000;
-        
-        var velocityY = 1 *  Math.cos(toRadians(tanksGame.ships[0].rotation ));
-        velocityY = Math.floor(velocityY * 1000) / 1000;
-        
-        // constant speed...
-        // maps article  
-        // http://stackoverflow.com/questions/11406161/managing-text-maps-in-a-2d-array-on-to-be-painted-on-html5-canvas
-        // gameloop latency
-        // https://developer.valvesoftware.com/wiki/Latency_Compensating_Methods_in_Client/Server_In-game_Protocol_Design_and_Optimization
-        
-        
-        tanksGame.ships[0].speedX = velocityX;
-        tanksGame.ships[0].speedY = velocityY;
-        tanksGame.ships[0].x += velocityX;
-        tanksGame.ships[0].y += velocityY;
-        tanksGame.ships[0].image.setX( tanksGame.ships[0].x);
-        tanksGame.ships[0].image.setY( tanksGame.ships[0].y);
-        tanksGame.tanksLayer.draw();
+        //var velocityX = 1 * Math.sin(toRadians(  tanksGame.ships[0].rotation));
+        //velocityX = Math.floor(velocityX * -1000) / 1000;
+        //
+        //var velocityY = 1 *  Math.cos(toRadians(tanksGame.ships[0].rotation ));
+        //velocityY = Math.floor(velocityY * 1000) / 1000;
+        //
+        //// constant speed...
+        //// maps article  
+        //// http://stackoverflow.com/questions/11406161/managing-text-maps-in-a-2d-array-on-to-be-painted-on-html5-canvas
+        //// gameloop latency
+        //// https://developer.valvesoftware.com/wiki/Latency_Compensating_Methods_in_Client/Server_In-game_Protocol_Design_and_Optimization
+        //
+        //
+        //tanksGame.ships[0].speedX = velocityX;
+        //tanksGame.ships[0].speedY = velocityY;
+        //tanksGame.ships[0].x += velocityX;
+        //tanksGame.ships[0].y += velocityY;
+        //tanksGame.ships[0].image.setX( tanksGame.ships[0].x);
+        //tanksGame.ships[0].image.setY( tanksGame.ships[0].y);
+        //tanksGame.tanksLayer.draw();
                 
     } 
 }
