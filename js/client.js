@@ -51,12 +51,7 @@ function initStage(images) {
 	});
     
     tanksGame.socket.on('update_game', function (data) {
-		if (tanksGame.debug) {
-			console.log("My id: " + tanksGame.id);
-		}
-
 		for (t in tanksGame.tanks) {
-			if (! tanksGame.tanks[t].deleted) {
 				var foundtank = false;
 				for (servertank in data.tanks) {
 					if (servertank == t) {
@@ -64,17 +59,12 @@ function initStage(images) {
 					}
 				}
 				if (! foundtank) {
-					console.log("deleting tank: " + t);
-					tanksGame.tanks[t].deleted = true;
 					tanksGame.tanks[t].image.destroy();
+					delete tanksGame.tanks[t];
 				}
-			}
 		}
 
 		for (t in data.tanks) {
-			if (tanksGame.debug) {
-				console.log("Adding Tank: " + t);
-			}
 			if (tanksGame.tanks[t]) {
 				tanksGame.tanks[t].image.setX( data.tanks[t].x);
 				tanksGame.tanks[t].image.setY( data.tanks[t].y);
@@ -257,7 +247,6 @@ function Asteroid(x, y, speedX, speedY, size) {
     this.speedY = speedY;
     this.size = size;
     this.points = [];
-    console.log(speedX);
 
     var n_points = 5 + parseInt(Math.random() * 10);
 
